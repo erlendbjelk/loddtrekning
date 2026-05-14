@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎟️ Loddtrekning</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6fa;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    p {
+      margin: 0.5em 0 1em;
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .form-section {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.05);
+    }
+
+    input[type="number"] {
+      width: 120px;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+      margin: 4px;
+    }
+
+    label {
+      display: inline-block;
+      width: 130px;
+      text-align: right;
+      margin-right: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #5c67f2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #4b54d1;
+    }
+
+    .results { /* This is the main container for all prize tiers */
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column; /* Tiers stack vertically */
+      align-items: center; /* Center tiers */
+      gap: 30px; /* Gap between prize tiers */
+    }
+
+    .prize-tier {
+      width: 100%;
+      max-width: 900px; 
+      background: #fff; 
+      padding: 20px;    
+      border-radius: 10px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.03); 
+    }
+
+    .prize-tier h2 {
+      font-size: 1.8em;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .results-grid { /* Container for color blocks within a tier */
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .color-block {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      min-width: 160px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.07);
+      transition: transform 0.3s;
+      opacity: 0;
+      animation: fadeIn 0.8s forwards;
+    }
+
+    .color-block h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .color-yellow { background: #fffacd; }
+    .color-orange { background: #fffacd; } /* Gul P */
+    .color-pink { background: #ffc0cb; }   /* Rosa B */
+    .color-red { background: #ffc0cb; }    /* Rosa F */
+    .color-blue { background: #d0e7ff; }   /* Blå C */
+    .color-dark-blue { background: #d0e7ff; } /* Blå T */
+    .color-green { background: #d0f0c0; }  /* Grønn C */
+    .color-dark-green { background: #d0f0c0; } /* Grønn T */
+
+    .prize-inputs > p { /* Style for the heading of prize inputs */
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+    .prize-inputs div { /* Style for each prize input row */
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: center; /* Centers label and input within the div */
+      align-items: center;
+    }
+
+
+    @keyframes fadeIn {
+      to { opacity: 1; transform: scale(1.03); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 Loddtrekning 17. mai 🏆</h1>
+  <p>Skriv inn nummer på den siste solgte billetten i hver farge. <br>(forutsetter at loddboken starter på 1, dvs. en hel loddbok)<br><br>La feltet stå tomt hvis ingen lodd er solgt for angjeldende loddbok.</p>
+
+  <form id="lottery-form" class="form-section">
+    <div id="color-inputs">
+      <!-- Color inputs will be dynamically generated here -->
+    </div>
+    
+    <div class="prize-inputs">
+      <p>Antall premier å trekke per kategori:</p>
+      <div>
+        <label for="num-main-winners">Hovedpremier:</label>
+        <input type="number" id="num-main-winners" min="0" placeholder="Antall" value="0">
+      </div>
+      <div>
+        <label for="num-second-winners">Andrepremier:</label>
+        <input type="number" id="num-second-winners" min="0" placeholder="Antall" value="0">
+      </div>
+      <div>
+        <label for="num-third-winners">Tredjepremier:</label>
+        <input type="number" id="num-third-winners" min="0" placeholder="Antall" value="0">
+      </div>
+    </div>
+
+    <button type="submit">Trekk vinnere😁</button>
+  </form>
+
+  <div class="results" id="results">
+    <!-- Winning tickets will be displayed here -->
+  </div>
+
+  <script>
+    const colors = [
+      { name: 'Gul W', class: 'yellow' },
+      { name: 'Gul T', class: 'orange' },
+      { name: 'Rosa S', class: 'pink' },
+      { name: 'Rosa G', class: 'red' },
+      { name: 'Blå B', class: 'blue' },
+      { name: 'Blå A', class: 'dark-blue' },
+      { name: 'Grønn E', class: 'green' },
+      { name: 'Grønn K', class: 'dark-green' }
+    ];
+
+    const colorInputsDiv = document.getElementById('color-inputs');
+    colors.forEach(color => {
+      const id = color.name.toLowerCase().replace(/\s+/g, '-'); // Robust ID generation
+      colorInputsDiv.innerHTML += `
+        <div>
+          <label for="${id}">${color.name}:</label>
+          <input type="number" id="${id}" placeholder="Antall solgte" min="1">
+        </div>
+      `;
+    });
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function groupWinnersByColor(winnerList) {
+        const grouped = {};
+        // Initialize with all known colors to maintain order and structure
+        colors.forEach(colorInfo => {
+            grouped[colorInfo.name] = { list: [], class: colorInfo.class };
+        });
+
+        winnerList.forEach(({ color, ticket }) => { // 'color' here is the color name string
+            if (grouped[color]) { 
+                grouped[color].list.push(ticket);
+            }
+        });
+
+        // Sort ticket numbers within each color
+        for (let colorName in grouped) {
+            grouped[colorName].list.sort((a, b) => a - b);
+        }
+        return grouped;
+    }
+
+    document.getElementById('lottery-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Get number of winners for each prize tier
+      const numMainWinners = parseInt(document.getElementById('num-main-winners').value) || 0;
+      const numSecondWinners = parseInt(document.getElementById('num-second-winners').value) || 0;
+      const numThirdWinners = parseInt(document.getElementById('num-third-winners').value) || 0;
+      const totalWinnersToDraw = numMainWinners + numSecondWinners + numThirdWinners;
+
+      if (totalWinnersToDraw === 0) {
+        alert('Vennligst angi antall premier å trekke for minst én kategori.');
+        return;
+      }
+      
+      // Gather all available tickets
+      const allTickets = [];
+      colors.forEach(color => {
+        const id = color.name.toLowerCase().replace(/\s+/g, '-');
+        const maxInput = document.getElementById(id);
+        // Check if input exists and has a value before parsing
+        if (maxInput && maxInput.value) {
+            const max = parseInt(maxInput.value);
+            if (!isNaN(max) && max >= 1) {
+              for (let i = 1; i <= max; i++) {
+                allTickets.push({ color: color.name, ticket: i });
+              }
+            }
+        }
+      });
+
+      if (allTickets.length === 0) {
+        alert('Ingen lodd er registrert. Vennligst fyll inn antall solgte lodd for minst én farge.');
+        return;
+      }
+
+      if (totalWinnersToDraw > allTickets.length) {
+        alert(`Det er ikke nok lodd (${allTickets.length} solgt) til å trekke ${totalWinnersToDraw} vinnere.`);
+        return;
+      }
+
+      // Shuffle all tickets and pick the total number of winners needed
+      shuffleArray(allTickets);
+      const overallPickedWinners = allTickets.slice(0, totalWinnersToDraw);
+
+      // Assign winners to prize tiers
+      const mainPrizeWinners = overallPickedWinners.slice(0, numMainWinners);
+      const secondPrizeWinners = overallPickedWinners.slice(numMainWinners, numMainWinners + numSecondWinners);
+      const thirdPrizeWinners = overallPickedWinners.slice(numMainWinners + numSecondWinners, totalWinnersToDraw);
+      
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = ''; // Clear previous results
+
+      // Helper function to display winners for a specific tier
+      function appendTierResults(title, winners, prizeTierClass) {
+        // Do not create a section if there are no winners for this tier (e.g., numMainWinners was 0)
+        if (winners.length === 0) return;
+
+        const winnersByColorData = groupWinnersByColor(winners);
+
+        // Check if there's any actual content to display after grouping
+        let hasContent = false;
+        for (const colorName in winnersByColorData) {
+            if (winnersByColorData[colorName].list.length > 0) {
+                hasContent = true;
+                break;
+            }
+        }
+        // If, after grouping, no color has any winners for this tier, don't display the tier.
+        // This can happen if winners were allocated but somehow didn't match known colors (shouldn't occur with current logic).
+        if (!hasContent) return; 
+
+        const tierElement = document.createElement('div');
+        tierElement.className = `prize-tier ${prizeTierClass}`;
+        tierElement.innerHTML = `<h2>${title}</h2>`;
+        
+        const tierGrid = document.createElement('div');
+        tierGrid.className = 'results-grid';
+
+        colors.forEach(colorInfo => { // Iterate global colors array to maintain defined order
+            const colorName = colorInfo.name;
+            const ticketsInColor = winnersByColorData[colorName].list;
+            if (ticketsInColor.length > 0) {
+                const card = document.createElement('div');
+                card.className = `color-block color-${colorInfo.class}`; // Use class from global colors array
+                card.innerHTML = `
+                    <h3>${colorName}</h3>
+                    <div>${ticketsInColor.join(', ')}</div>
+                `;
+                tierGrid.appendChild(card);
+            }
+        });
+        
+        tierElement.appendChild(tierGrid);
+        resultsDiv.appendChild(tierElement);
+      }
+
+      // Display each prize tier
+      if (numMainWinners > 0) appendTierResults('🏆 Hovedpremier 🏆', mainPrizeWinners, 'main-prizes');
+      if (numSecondWinners > 0) appendTierResults('🥈 Andrepremier 🥈', secondPrizeWinners, 'second-prizes');
+      if (numThirdWinners > 0) appendTierResults('🥉 Tredjepremier 🥉', thirdPrizeWinners, 'third-prizes');
+    });
+  </script>
+</body>
+</html>
